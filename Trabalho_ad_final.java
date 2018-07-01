@@ -16,7 +16,7 @@ public class Trabalho_ad_final {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) { // ******** ESTÁ CHEIO DE GAMBIARRA ***********
         
         // folga = Xn/m - X(n-1)/m --> deve ser um numero pequeno
         double lambda = 1;
