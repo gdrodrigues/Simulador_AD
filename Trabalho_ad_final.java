@@ -16,7 +16,7 @@ public class Trabalho_ad_final {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) { // CHEIO DE GAMBIARRAS!!! //
         
         //numero de guiches
         int numGuiches = 2;
@@ -70,11 +70,28 @@ public class Trabalho_ad_final {
         for(int i = 0; i<numFilasPrio; i++){
             filasPrio.add(new Fila("prioritario"));
         }
+        
+        
+        //recursos --> caixas 
+        ArrayList<Caixa> caixasComum = new ArrayList<>();
+        for(int i = 0; i<numCaixaAtendComum; i++){
+            caixasComum.add(new Caixa());
+        }
+        
+        ArrayList<Caixa> caixasPrio = new ArrayList<>();
+        for(int i = 0; i<numCaixaAtendPrio; i++){
+            caixasPrio.add(new Caixa());
+        }
+        
         //execução
         semente = 5;
+        double semente1 = 5;
+        double semente2 = 5;
         lambda = 0.033;
         double tempo = 0;
         ArrayList<Cliente> clientes = new ArrayList<>();
+        
+        int numFilaComum = 0; // controla de qual fila vai vir o cliente 
         
         while(tempo<3600){
             
@@ -82,6 +99,7 @@ public class Trabalho_ad_final {
             
             if(temposDeChegada.size()>0){
                 if(temposDeChegada.get(0)<=tempo){
+                    lambda = 0.033;
                     semente = congruenteLinear(semente);
                     double aleatorioExp = exponencial(semente/m, lambda);
 
@@ -134,6 +152,68 @@ public class Trabalho_ad_final {
                 }
             }
             
+            //esvazia os caixas...
+            for (Caixa caixa : caixasComum) { // libera guiches que podem ser liberados e manda para as proximas filas
+                if(!caixa.isLivre()){
+                    if(caixa.getTempoQueDeveLiberar()<= tempo){
+                        caixa.desbloqueia();
+                        caixa.addCliente(null);
+                        //esvazia o caixa
+                    }
+                }
+            }
+            
+            for (Caixa caixa : caixasPrio) { // libera guiches que podem ser liberados e manda para as proximas filas
+                if(!caixa.isLivre()){
+                    if(caixa.getTempoQueDeveLiberar()<= tempo){
+                        caixa.desbloqueia();
+                        caixa.addCliente(null);
+                        //esvazia o caixa
+                    }
+                }
+            }
+            
+            // tirar das filas e colocar nos recursos (caixas)
+            
+            for(Caixa caixa:caixasComum){
+                if(caixa.isLivre()){
+                    for(Fila fila:filasComum){
+                        Cliente c = fila.primeiro();
+                        
+                        if(c!=null){
+                            lambda = 0.003;
+                            semente1 = congruenteLinear(semente1);
+                            double aleatorioExp = exponencial(semente1/m, lambda);
+                            c.setTempoDeAtendimento(aleatorioExp);
+                            caixa.bloqueia();
+                            caixa.addCliente(c);
+                            caixa.setTempoQueDeveLiberar(tempo + c.getTempoDeAtendimento());
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            //filas com prioridade
+            for(Caixa caixa:caixasPrio){
+                if(caixa.isLivre()){
+                    for(Fila fila:filasPrio){
+                        Cliente c = fila.primeiro();
+                        
+                        if(c!=null){
+                            lambda = 0.003;
+                            semente2 = congruenteLinear(semente2);
+                            double aleatorioExp = exponencial(semente2/m, lambda);
+                            c.setTempoDeAtendimento(aleatorioExp);
+                            caixa.bloqueia();
+                            caixa.addCliente(c);
+                            caixa.setTempoQueDeveLiberar(tempo + c.getTempoDeAtendimento());
+                            break;
+                        }
+                    }
+                }
+            }
+            
             tempo+=1;
             
             // printando o estado do sistema -->>
@@ -154,12 +234,29 @@ public class Trabalho_ad_final {
             for(int i = 0; i<numFilasPrio; i++){
                 System.out.println("Fila " + i);
                 filasPrio.get(i).imprime();
+                System.out.println("size = " + filasPrio.get(i).getSize());
             }
+            
             System.out.println();
             System.out.println("\nEstado das filas comuns\n");
             for(int i = 0; i<numFilasComum; i++){
                 System.out.println("Fila " + i);
                 filasComum.get(i).imprime();
+                System.out.println("size = " + filasComum.get(i).getSize());
+            }
+            
+            System.out.println();
+            System.out.println("\nEstado dos caixas\n");
+            System.out.println("Comum");
+            for(int i = 0; i<numCaixaAtendComum; i++){
+                System.out.println("Caixa " + i);
+                caixasComum.get(i).imprime();
+            }
+            
+            System.out.println("\nprio");
+            for(int i = 0; i<numCaixaAtendPrio; i++){
+                System.out.println("Caixa " + i);
+                caixasPrio.get(i).imprime();
             }
             
             System.out.println("\n\n\n\n");
