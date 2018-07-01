@@ -16,49 +16,176 @@ public class Trabalho_ad_final {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) { // ******** ESTÁ CHEIO DE GAMBIARRA ***********
+    public static void main(String[] args) {
+        
+        //numero de guiches
+        int numGuiches = 2;
+        //numero de filas
+        int numFilasComum = 3;
+        //numero de filas prioritarias
+        int numFilasPrio = 3;
+        //numero de 'caixas de atendimento'
+        int numCaixaAtendComum = 3;
+        //numero de 'caixas de atendimento prioritario'
+        int numCaixaAtendPrio = 1;
+        
         
         // folga = Xn/m - X(n-1)/m --> deve ser um numero pequeno
-        double lambda = 1;
+        double lambda = 0.028;//=100/60 aprox.
         double semente = 5; // deve ser impar
         double m = 1048576;
         
-        ArrayList<Double> teste = new ArrayList<>();
+//        ArrayList<Double> teste = new ArrayList<>();//apagar dps
+        ArrayList<Double> temposDeChegada = new ArrayList<>();
         
+        
+        // primeiro obtemos todos os tempos de chegada para a fila inicial em segundos
         double cont1 = 0;
-        for (int i = 0; i<50*60; i++){
+        while(cont1<=3600){
             semente = congruenteLinear(semente);
-            double num = exponencial(semente/m, lambda);
-            System.out.printf("O cliente %d chegou no tempo = %.2f%n", i, (cont1));
-            teste.add(cont1);
-            cont1+=num;
+            double aleatorioExp = exponencial(semente/m, lambda);
+            System.out.printf("O cliente chegou no tempo = %.2f com num = %.2f%n", (cont1), aleatorioExp);
+            temposDeChegada.add(cont1);
+//            teste.add(cont1);
+            cont1+=aleatorioExp;
+            
+            /*
+               num vai ser o iintervalo entre as chegadas.
+            */
+        }
+        
+        //cria guiches
+        ArrayList<Guiche> guiches = new ArrayList<>();
+        for(int i = 0; i<numGuiches; i++){
+            guiches.add(new Guiche());
+        }
+        
+        //filas
+        ArrayList<Fila> filasComum = new ArrayList<>();
+        for(int i = 0; i<numFilasComum; i++){
+            filasComum.add(new Fila("comum"));
+        }
+        
+        ArrayList<Fila> filasPrio = new ArrayList<>();
+        for(int i = 0; i<numFilasPrio; i++){
+            filasPrio.add(new Fila("prioritario"));
+        }
+        //execução
+        semente = 5;
+        lambda = 0.033;
+        double tempo = 0;
+        ArrayList<Cliente> clientes = new ArrayList<>();
+        
+        while(tempo<3600){
+            
+            System.out.println("\n --- tempo " + tempo + " ---\n");
+            
+            if(temposDeChegada.size()>0){
+                if(temposDeChegada.get(0)<=tempo){
+                    semente = congruenteLinear(semente);
+                    double aleatorioExp = exponencial(semente/m, lambda);
+
+                    if((congruenteLinear(semente)/m) > 0.7){ // sorteio para ver se e prioritario
+                        clientes.add(new Cliente(aleatorioExp, "prioritario"));
+                        System.out.println("Cliente prioritario add ");
+                    }
+                    else{
+                        clientes.add(new Cliente(aleatorioExp, "comum"));
+                        System.out.println("Cliente comum add ");
+                    }
+                    temposDeChegada.remove(0);
+                }
+            }
+            
+            for (Guiche guiche : guiches) { // libera guiches que podem ser liberados e manda para as proximas filas
+                if(!guiche.isLivre()){
+                    if(guiche.getTempoQueDeveLiberar()<= tempo){
+                        guiche.desbloqueia();
+                        
+                        if(guiche.getCliente().getPrioridade().equals("prioritario")){
+                            int filaComMenorNum = 0;
+                            for(int i = 0; i<filasPrio.size(); i++){
+                                if(filasPrio.get(i).getSize()<filasPrio.get(filaComMenorNum).getSize()){
+                                    filaComMenorNum = i;
+                                }
+                            }
+                            
+                            filasPrio.get(filaComMenorNum).add(guiche.getCliente());
+                        }
+                        else{
+                            int filaComMenorNum = 0;
+                            for(int i = 0; i<filasComum.size(); i++){
+                                if(filasComum.get(i).getSize()<filasComum.get(filaComMenorNum).getSize()){
+                                    filaComMenorNum = i;
+                                }
+                            }
+                            
+                            filasComum.get(filaComMenorNum).add(guiche.getCliente());
+                        }
+                    }
+                }
+            }
+            for (Guiche guiche : guiches) {   // coloca novos clientes nos guiches
+                if(guiche.isLivre() && clientes.size()>0){
+                    guiche.bloqueia();
+                    guiche.addCliente(clientes.get(0));
+                    guiche.setTempoQueDeveLiberar(tempo+clientes.get(0).getTempoDeAtendimento());
+                    clientes.remove(0);
+                }
+            }
+            
+            tempo+=1;
+            
+            // printando o estado do sistema -->>
+//            System.out.println("\nEstado fila entrada\n");
+//            for(int i = 0; i<temposDeChegada.size();i++){
+//                System.out.println(temposDeChegada.get(i));
+//            }
+//            System.out.println("\n");
+            
+            System.out.println("\nEstado dos guiches\n");
+            for(int i = 0; i<numGuiches; i++){
+                System.out.println("Guiche " + i);
+                guiches.get(i).imprime();
+            }
+            System.out.println();
+            
+            System.out.println("\nEstado das filas prioritarias\n");
+            for(int i = 0; i<numFilasPrio; i++){
+                System.out.println("Fila " + i);
+                filasPrio.get(i).imprime();
+            }
+            System.out.println();
+            System.out.println("\nEstado das filas comuns\n");
+            for(int i = 0; i<numFilasComum; i++){
+                System.out.println("Fila " + i);
+                filasComum.get(i).imprime();
+            }
+            
+            System.out.println("\n\n\n\n");
             
         }
-        System.out.println(cont1);
         
-        double cont3 = 0;
-        ArrayList<Double> kk = new ArrayList();
-        for (int i = 0; i<teste.size(); i++){
-            int n = verifica(teste, i*60, (i+1)*60);
-            kk.add((double)n);
-            System.out.println("-> " + n);
-        }
         
-        for(int i = 0; i<kk.size(); i++){
-            cont3+=kk.get(i);
-        }
         
-        System.out.println("media = " + (cont3/50));
         
-//        System.out.println("media = " + cont3/50);
-//        ArrayList<Double> temposDeChegada = poisson();
-//        
-//        //chegada dos clientes
-//        double cont = 0;
-//        for (int i = 0; i<temposDeChegada.size(); i++) {
-//            cont+=temposDeChegada.get(i);
-//            System.out.println("O cliente " + i + " chegou no tempo " + cont);
+        // daqui pra baixo são testes -->
+        
+        // verifica media --
+//        double cont3 = 0;
+//        ArrayList<Double> kk = new ArrayList();
+//        for (int i = 0; i<teste.size()/60; i++){
+//            int n = verifica(teste, i*60, (i+1)*60);
+//            kk.add((double)n);
+//            System.out.println("-> " + n);
 //        }
+//        
+//        for(int i = 0; i<kk.size(); i++){
+//            cont3+=kk.get(i);
+//        }
+//        
+//        System.out.println("media = " + (cont3/30));
+//       
     }
     
     public static int verifica(ArrayList<Double> array, int valor1, int valor2){
@@ -122,9 +249,7 @@ public class Trabalho_ad_final {
     }
     
     public static double exponencial(double numAleatorio, double lambda){
-//        double lambda = 1;
-        double num = (1/(-lambda)) * (Math.log(numAleatorio));
-//        System.out.printf("%.2f%n", (num*100));
-        return num;
+        return (1/(-lambda)) * (Math.log(numAleatorio));
+        
     }
 }
