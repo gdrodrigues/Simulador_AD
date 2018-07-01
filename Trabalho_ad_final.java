@@ -89,8 +89,11 @@ public class Trabalho_ad_final {
         
         
         // folga = Xn/m - X(n-1)/m --> deve ser um numero pequeno
-        double lambda = capacidadeGuiches/3600;//=100/3600 aprox. 0,028
-        System.out.println((120/3600) + "-------------------");
+        double lambda = capacidadeGuiches/(double)3600;//=100/3600 aprox. 0,028
+        double mi = capacidadeCaixas/(double)3600;//12/3600 = aprox. 0,003
+        
+        
+        System.out.println(((double)((double)120/(double)3600)) + "-------------------");
         double semente = 5; // deve ser impar
         double m = 1048576;
         
@@ -145,7 +148,7 @@ public class Trabalho_ad_final {
         semente = 5;
         double semente1 = 5;
         double semente2 = 5;
-        double mi = capacidadeCaixas/3600;//12/3600 = aprox. 0,003
+        
         double tempo = 0;
         ArrayList<Cliente> clientes = new ArrayList<>();
         
