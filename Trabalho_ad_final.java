@@ -72,14 +72,14 @@ public class Trabalho_ad_final {
             numCaixaAtendPrio = s.nextInt();
         }
         else{
-            limiteFila = 100;
+            limiteFila = 15;
             taxaChegada = 100;
             capacidadeGuiches = 120;
             capacidadeCaixas = 12;
             
-            numGuiches = 2;
+            numGuiches = 1;
             numFilasComum = 3;
-            numFilasPrio = 3;
+            numFilasPrio = 1;
             numCaixaAtendComum = 3;
             numCaixaAtendPrio = 1;
         }
@@ -157,6 +157,9 @@ public class Trabalho_ad_final {
         
         int cont_terminados = 0;
         
+        
+        int qtdPacotesDescartadosGuiches = 0;
+        int qtdClientesDescartadosCaixas = 0;
         while(tempo<3600){
             
             System.out.println("\n --- tempo " + tempo + " ---\n");
@@ -165,14 +168,18 @@ public class Trabalho_ad_final {
                 if(temposDeChegada.get(0)<=tempo){
                     semente = congruenteLinear(semente);
                     double aleatorioExp = exponencial(semente/m, lambda);
-
-                    if((congruenteLinear(semente)/m) > 0.7){ // sorteio para ver se e prioritario
-                        clientes.add(new Cliente(aleatorioExp, "prioritario"));
-                        System.out.println("Cliente prioritario add ");
-                    }
-                    else{
-                        clientes.add(new Cliente(aleatorioExp, "comum"));
-                        System.out.println("Cliente comum add ");
+                    
+                    if(clientes.size()<limiteFila){
+                        if((congruenteLinear(semente)/m) > 0.7){ // sorteio para ver se e prioritario
+                            clientes.add(new Cliente(aleatorioExp, "prioritario"));
+                            System.out.println("Cliente prioritario add ");
+                        }
+                        else{
+                            clientes.add(new Cliente(aleatorioExp, "comum"));
+                            System.out.println("Cliente comum add ");
+                        }
+                    }else{ // pacote descartado 
+                        qtdPacotesDescartadosGuiches++;
                     }
                     temposDeChegada.remove(0);
                 }
@@ -191,7 +198,13 @@ public class Trabalho_ad_final {
                                 }
                             }
                             
-                            filasPrio.get(filaComMenorNum).add(guiche.getCliente());
+                            if(filasPrio.get(filaComMenorNum).getSize()<limiteFila){
+                                filasPrio.get(filaComMenorNum).add(guiche.getCliente());
+                            }
+                            else{
+                                qtdClientesDescartadosCaixas++;
+                            }
+                          
                         }
                         else{
                             int filaComMenorNum = 0;
@@ -200,8 +213,13 @@ public class Trabalho_ad_final {
                                     filaComMenorNum = i;
                                 }
                             }
-                            
-                            filasComum.get(filaComMenorNum).add(guiche.getCliente());
+                            if(filasComum.get(filaComMenorNum).getSize()<limiteFila){
+                                filasComum.get(filaComMenorNum).add(guiche.getCliente());
+                            }
+                            else{
+                                qtdClientesDescartadosCaixas++;
+                            }
+//                            filasComum.get(filaComMenorNum).add(guiche.getCliente());
                         }
                     }
                 }
@@ -248,7 +266,9 @@ public class Trabalho_ad_final {
                             Cliente c = fila.primeiro();
                         
                             if(c!=null){
-                                numFilaComum = fila.getNumero();
+                                if(filasComum.size()>1){
+                                    numFilaComum = fila.getNumero();
+                                }
                                 semente1 = congruenteLinear(semente1);
                                 double aleatorioExp = exponencial(semente1/m, mi);
                                 c.setTempoDeAtendimento(aleatorioExp);
@@ -269,7 +289,9 @@ public class Trabalho_ad_final {
                         if(numFilaPrio != fila.getNumero()){
                             Cliente c = fila.primeiro();
                             if(c!=null){
-                                numFilaPrio = fila.getNumero();
+                                if(filasPrio.size()>1){
+                                    numFilaPrio = fila.getNumero();
+                                }
                                 semente2 = congruenteLinear(semente2);
                                 double aleatorioExp = exponencial(semente2/m, mi);
                                 c.setTempoDeAtendimento(aleatorioExp);
@@ -332,6 +354,8 @@ public class Trabalho_ad_final {
             
         }
         System.out.println(cont_terminados + "-<");
+        System.out.println("perdidos no guiche = " + qtdPacotesDescartadosGuiches);
+        System.out.println("perdidos no caixa = " + qtdClientesDescartadosCaixas);
         
 
     }
@@ -395,6 +419,16 @@ public class Trabalho_ad_final {
     
     public static double exponencial(double numAleatorio, double lambda){
         return (1/(-lambda)) * (Math.log(numAleatorio));
+        
+    }
+    
+    public void f(){
+        
+        double num = 1.123456789;
+        while(num<11){
+            System.out.println("(" + num + ")");
+            num+=1;
+        }
         
     }
 }
