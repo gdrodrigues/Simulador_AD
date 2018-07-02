@@ -84,16 +84,12 @@ public class Trabalho_ad_final {
             numCaixaAtendPrio = 1;
         }
         
-        
-        
-        
-        
         // folga = Xn/m - X(n-1)/m --> deve ser um numero pequeno
         double lambda = capacidadeGuiches/(double)3600;//=100/3600 aprox. 0,028
         double mi = capacidadeCaixas/(double)3600;//12/3600 = aprox. 0,003
         
         
-        System.out.println(((double)((double)120/(double)3600)) + "-------------------");
+//        System.out.println(((double)((double)120/(double)3600)) + "-------------------");
         double semente = 5; // deve ser impar
         double m = 1048576;
         
@@ -187,6 +183,7 @@ public class Trabalho_ad_final {
             
             for (Guiche guiche : guiches) { // libera guiches que podem ser liberados e manda para as proximas filas
                 if(!guiche.isLivre()){
+                    guiche.setTempoOcupado(guiche.getTempoOcupado()+1);
                     if(guiche.getTempoQueDeveLiberar()<= tempo){
                         guiche.desbloqueia();
                         
@@ -236,6 +233,7 @@ public class Trabalho_ad_final {
             //esvazia os caixas...
             for (Caixa caixa : caixasComum) { //
                 if(!caixa.isLivre()){
+                    caixa.setTempoOcupado(caixa.getTempoOcupado()+1);
                     if(caixa.getTempoQueDeveLiberar()<= tempo){
                         caixa.desbloqueia();
                         caixa.addCliente(null);
@@ -247,6 +245,7 @@ public class Trabalho_ad_final {
             
             for (Caixa caixa : caixasPrio) { // 
                 if(!caixa.isLivre()){
+                    caixa.setTempoOcupado(caixa.getTempoOcupado()+1);
                     if(caixa.getTempoQueDeveLiberar()<= tempo){
                         caixa.desbloqueia();
                         caixa.addCliente(null);
@@ -353,10 +352,23 @@ public class Trabalho_ad_final {
             System.out.println("\n\n\n\n");
             
         }
-        System.out.println(cont_terminados + "-<");
+        System.out.println(cont_terminados + "<-pacotes que concluiram a utilizacao do sistema com sucesso");
         System.out.println("perdidos no guiche = " + qtdPacotesDescartadosGuiches);
         System.out.println("perdidos no caixa = " + qtdClientesDescartadosCaixas);
         
+        System.out.println("\nTempo que os recursos ficaram ocupados");
+        
+        for(int i = 0; i<guiches.size(); i++){
+            System.out.println("Guiche " + i + " tempo ocupado = " + guiches.get(i).getTempoOcupado());
+        }
+        
+        for(int i = 0; i<caixasComum.size(); i++){
+            System.out.println("Caixa comum " + i + " tempo ocupado = " + caixasComum.get(i).getTempoOcupado());
+        }
+        
+        for(int i = 0; i<caixasPrio.size(); i++){
+            System.out.println("Caixas prio " + i + " tempo ocupado = " + caixasPrio.get(i).getTempoOcupado());
+        }
 
     }
     
@@ -421,6 +433,4 @@ public class Trabalho_ad_final {
         return (1/(-lambda)) * (Math.log(numAleatorio));
         
     }
-    
-   
 }
