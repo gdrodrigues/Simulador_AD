@@ -422,13 +422,5 @@ public class Trabalho_ad_final {
         
     }
     
-    public void f(){
-        
-        double num = 1.123456789;
-        while(num<11){
-            System.out.println("(" + num + ")");
-            num+=1;
-        }
-        
-    }
+   
 }
